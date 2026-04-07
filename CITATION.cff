@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "PolicyMind AI"
+abstract: "A production-grade OpenEnv environment where AI agents perform multi-step reasoning on insurance/policy/legal documents to make informed decisions."
+authors:
+  - family-names: "PolicyMind AI Team"
+    website: "https://github.com/saipraveen-k/PolicyMind-AI"
+version: "1.0.0"
+doi: "10.0000/policymind-ai"  # Placeholder - update with actual DOI if available
+date-released: "2024"
+license: "MIT"
+keywords:
+  - "openenv"
+  - "reinforcement-learning"
+  - "document-processing"
+  - "policy-analysis"
+  - "insurance"
+  - "decision-making"
+  - "ai-agents"
+  - "hackathon"
+repository-code: "https://github.com/saipraveen-k/PolicyMind-AI"
+repository: "https://github.com/saipraveen-k/PolicyMind-AI"
+url: "https://github.com/saipraveen-k/PolicyMind-AI"
+contact:
+  - email: "contact@policymind.ai"
+    website: "https://github.com/saipraveen-k/PolicyMind-AI"
+preferred-citation:
+  type: software
+  title: "PolicyMind AI: A Real-World Document Decision Environment for OpenEnv"
+  authors:
+    - family-names: "PolicyMind AI Team"
+      given-names: ""
+  year: 2024
+  url: "https://github.com/saipraveen-k/PolicyMind-AI"
+  license: "MIT"

@@ -1,19 +1,7 @@
 #!/usr/bin/env python3
 """
 PolicyMind AI Inference Script - OpenEnv Hackathon Compliance
-Uses OpenAI client to run the environment step-by-step with EXACT logging format.
-
-Required Environment Variables:
-- HF_TOKEN (mandatory): Hugging Face token for API access
-- API_BASE_URL (optional): API base URL, defaults to "https://api.openai.com/v1"
-- MODEL_NAME (optional): Model name, defaults to "gpt-3.5-turbo"
-- TASK_DIFFICULTY (optional): Task difficulty, defaults to "medium"
-- MAX_STEPS (optional): Maximum steps, defaults to "10"
-
-Output Format (EXACT):
-[START] task=<task_name> env=<env_name> model=<model_name>
-[STEP] step=<n> action=<action> reward=<0.00> done=<true|false> error=<msg|null>
-[END] success=<true|false> steps=<n> rewards=<r1,r2,...>
+Uses OpenAI client to run environment step-by-step with EXACT logging format.
 """
 
 import asyncio
@@ -22,7 +10,6 @@ import os
 import sys
 from typing import Dict, List, Any, Optional
 
-import openai
 from openai import OpenAI
 
 # Add environment to path
@@ -94,7 +81,7 @@ Be thorough, accurate, and provide clear reasoning for your decisions. Focus on 
         try:
             observation = await env.reset()
         except Exception as e:
-            print(f"[END] success=false steps=0 rewards=")
+            print("[END] success=false steps=0 rewards=")
             return 0.0
         
         rewards = []
