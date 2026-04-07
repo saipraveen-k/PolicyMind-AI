@@ -1,0 +1,235 @@
+# OpenEnv Configuration for PolicyMind AI Environment
+# Real-world document decision environment for insurance claim processing
+
+name: "policymind-ai"
+version: "1.0.0"
+description: "Real-world document decision environment where AI agents perform multi-step reasoning on insurance/policy/legal documents to make informed decisions"
+
+# Environment specification
+environment:
+  module: "environment.env"
+  class: "PolicyMindEnvironment"
+  
+  # Environment initialization parameters
+  init_params:
+    task_difficulty: "medium"  # Can be "easy", "medium", or "hard"
+    max_steps: 10
+
+# Task configurations
+tasks:
+  easy:
+    name: "Document Information Extraction"
+    description: "Extract structured fields from insurance/policy documents"
+    difficulty: "easy"
+    max_steps: 5
+    evaluation_module: "tasks.task_easy"
+    grader_class: "EasyTaskGrader"
+    
+    # Expected outputs
+    expected_outputs:
+      - "JSON with extracted fields"
+      - "Field names and values"
+      - "Confidence scores"
+    
+    # Success criteria
+    success_criteria:
+      accuracy_threshold: 0.6
+      completeness_threshold: 0.5
+      max_steps: 5
+
+  medium:
+    name: "Policy Rule Matching"
+    description: "Match relevant policy clauses to document content"
+    difficulty: "medium"
+    max_steps: 8
+    evaluation_module: "tasks.task_medium"
+    grader_class: "MediumTaskGrader"
+    
+    # Expected outputs
+    expected_outputs:
+      - "List of matched policy rules"
+      - "Relevance scores"
+      - "Rule categories"
+    
+    # Success criteria
+    success_criteria:
+      precision_threshold: 0.6
+      recall_threshold: 0.6
+      f1_threshold: 0.6
+      max_steps: 8
+
+  hard:
+    name: "Decision Making with Justification"
+    description: "Make final decisions with confidence and detailed justification"
+    difficulty: "hard"
+    max_steps: 10
+    evaluation_module: "tasks.task_hard"
+    grader_class: "HardTaskGrader"
+    
+    # Expected outputs
+    expected_outputs:
+      - "Final decision (Approved/Rejected/Needs Review)"
+      - "Confidence score (0-1)"
+      - "Detailed justification"
+      - "Applied policy rules"
+    
+    # Success criteria
+    success_criteria:
+      decision_accuracy_threshold: 0.7
+      justification_quality_threshold: 0.6
+      overall_score_threshold: 0.6
+      max_steps: 10
+
+# Model schemas (Pydantic models)
+models:
+  observation:
+    module: "environment.models"
+    class: "Observation"
+    
+  action:
+    module: "environment.models"
+    class: "Action"
+    
+  reward:
+    module: "environment.models"
+    class: "Reward"
+
+# Inference configuration
+inference:
+  script: "inference.py"
+  requirements:
+    - "openai>=1.0.0"
+    - "python-dotenv>=1.0.0"
+  
+  # Environment variables
+  environment_variables:
+    - "API_BASE_URL"
+    - "MODEL_NAME"
+    - "HF_TOKEN"
+    - "OPENAI_API_KEY"
+    - "TASK_DIFFICULTY"
+    - "MAX_STEPS"
+
+# Validation requirements
+validation:
+  # Required methods that must be implemented
+  required_methods:
+    - "reset"
+    - "step"
+    - "state"
+  
+  # Method signatures
+  method_signatures:
+    reset:
+      async: true
+      returns: "Observation"
+      parameters:
+        - name: "task_difficulty"
+          type: "str"
+          optional: true
+    
+    step:
+      async: true
+      returns: "tuple[Observation, Reward, bool, dict]"
+      parameters:
+        - name: "action"
+          type: "Action"
+          required: true
+    
+    state:
+      async: true
+      returns: "EnvironmentState"
+      parameters: []
+
+# Documentation
+documentation:
+  overview: |
+    PolicyMind AI is a real-world environment that simulates insurance claim processing
+    and policy analysis. Agents must extract information from documents, match relevant
+    policy rules, and make informed decisions with proper justification.
+  
+  real_world_motivation: |
+    Insurance companies process millions of claims annually, requiring careful analysis
+    of documents, policy terms, and regulations. This environment provides a realistic
+    simulation of this critical business process, helping develop AI systems that can
+    assist human adjusters and improve processing efficiency.
+  
+  architecture: |
+    The environment uses a modular design with separate components for:
+    - Document processing and information extraction
+    - Policy rule matching and analysis
+    - Decision making with confidence scoring
+    - Comprehensive evaluation and grading
+    
+    All components use Pydantic models for type safety and validation.
+
+# Testing and evaluation
+testing:
+  # Unit tests
+  unit_tests:
+    - "tests/test_models.py"
+    - "tests/test_environment.py"
+    - "tests/test_tasks.py"
+  
+  # Integration tests
+  integration_tests:
+    - "tests/test_full_episode.py"
+    - "tests/test_inference.py"
+  
+  # Performance benchmarks
+  benchmarks:
+    - "tests/benchmark_easy.py"
+    - "tests/benchmark_medium.py"
+    - "tests/benchmark_hard.py"
+
+# Deployment configuration
+deployment:
+  # Docker support
+  docker:
+    dockerfile: "Dockerfile"
+    build_context: "."
+    expose_port: 8000
+  
+  # Hugging Face Spaces support
+  huggingface_spaces:
+    python_version: "3.9"
+    requirements_file: "requirements.txt"
+    app_file: "app.py"
+    
+  # Environment setup
+  environment:
+    python_version: ">=3.8"
+    dependencies:
+      - "pydantic>=2.0.0"
+      - "openai>=1.0.0"
+      - "python-dotenv>=1.0.0"
+      - "asyncio"
+
+# Metadata
+metadata:
+  authors:
+    - name: "PolicyMind AI Team"
+      email: "contact@policymind.ai"
+  
+  license: "MIT"
+  
+  tags:
+    - "insurance"
+    - "policy-analysis"
+    - "document-processing"
+    - "decision-making"
+    - "reinforcement-learning"
+    - "openenv"
+  
+  categories:
+    - "real-world"
+    - "business-process"
+    - "document-analysis"
+  
+  difficulty_levels:
+    - "easy"
+    - "medium" 
+    - "hard"
+  
+  supported_languages:
+    - "python"
