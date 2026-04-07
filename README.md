@@ -1,22 +1,24 @@
-# PolicyMind AI – Real-World Document Decision OpenEnv Environment
+# PolicyMind AI - Real-World Document Decision OpenEnv Environment
 
 [![OpenEnv Compatible](https://img.shields.io/badge/OpenEnv-Compatible-brightgreen)](https://openenv.ai)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![Hugging Face Spaces](https://img.shields.io/badge/Deploy%20on-Hugging%20Face%20Spaces-blue)](https://huggingface.co/spaces)
 
 A production-grade OpenEnv environment where AI agents perform multi-step reasoning on insurance/policy/legal documents to make informed decisions. This environment simulates real-world insurance claim processing, requiring agents to extract information, match policy rules, and make justified decisions.
 
-## 🎯 Project Overview
+## Why This Environment Matters
 
-PolicyMind AI addresses a critical real-world business process: insurance claim processing and policy analysis. Insurance companies process millions of claims annually, requiring careful analysis of documents, policy terms, and regulations. This environment provides a realistic simulation that helps develop AI systems capable of assisting human adjusters and improving processing efficiency.
+**Real-World Impact**: Insurance companies process over **$1.2 trillion** in claims annually, with processing costs averaging **15-20%** of claim value. AI automation could save **$180-240 billion** annually while improving accuracy and customer satisfaction.
 
-### Real-World Motivation
+**Industry Need**: Claims adjusters require extensive training (6-12 months) and must interpret complex policy documents. This environment addresses the critical shortage of qualified professionals while ensuring consistent, compliant decision-making.
 
-- **Business Impact**: Insurance claims processing costs billions annually
-- **Human Expertise**: Requires specialized knowledge of policies and regulations
-- **Accuracy Requirements**: Decisions have significant financial implications
-- **Efficiency Needs**: Processing time directly affects customer satisfaction
+**Technical Innovation**: Combines document understanding, rule-based reasoning, and decision confidence calibration - a trifecta rarely found in current AI systems.
+
+## Project Overview
+
+PolicyMind AI addresses a critical real-world business process: insurance claim processing and policy analysis. The environment provides a realistic simulation that helps develop AI systems capable of assisting human adjusters and improving processing efficiency.
 
 ## 🏗️ Architecture
 
@@ -166,11 +168,90 @@ The reward function provides incremental feedback:
 - **Efficiency**: +0.1 for completing within 70% of steps
 - **Quality**: Bonuses for high-quality reasoning
 
-## 🚀 Setup Instructions
+## Inference Output Format
+
+The inference script follows the **exact logging format** required by the hackathon:
+
+```
+[START] task=<task_name> env=<env_name> model=<model_name>
+[STEP] step=<n> action=<action> reward=<0.00> done=<true|false> error=<msg|null>
+[END] success=<true|false> steps=<n> rewards=<r1,r2,...>
+```
+
+**Format Requirements**:
+- Rewards formatted to 2 decimal places
+- Booleans in lowercase (true/false)
+- Always prints [END] even on errors
+- Actions are JSON-encoded strings
+
+### Example Output
+```
+[START] task=medium env=policymind-ai model=gpt-3.5-turbo
+[STEP] step=1 action={"action_type":"extract","extraction_fields":["claim_id"]} reward=0.15 done=false error=null
+[STEP] step=2 action={"action_type":"match_rules","rule_keywords":["collision"]} reward=0.25 done=false error=null
+[END] success=true steps=5 rewards=0.15,0.25,0.30,0.20,0.10
+```
+
+## Agent Reasoning Trace
+
+The environment maintains a detailed reasoning trace for each episode:
+
+1. **Information Extraction Phase**: Agent identifies key fields like claim IDs, dates, amounts
+2. **Rule Analysis Phase**: Agent matches document content to policy rules
+3. **Decision Synthesis Phase**: Agent combines extracted information and rule analysis to make final decision
+4. **Justification Generation**: Agent provides detailed reasoning for decision
+
+Each phase is tracked with:
+- Action taken and rationale
+- Information gained
+- Confidence scores
+- Rule relevance assessments
+
+## Hugging Face Deployment Validation
+
+### Pre-deployment Checklist
+- [ ] All dependencies in requirements.txt
+- [ ] Dockerfile builds successfully
+- [ ] Inference script runs with HF_TOKEN
+- [ ] Memory usage < 8GB
+- [ ] Startup time < 30 seconds
+
+### Deployment Steps
+
+1. **Create Space**: Go to [Hugging Face Spaces](https://huggingface.co/spaces) and create a new Space
+
+2. **Upload Files**: Upload all project files to the Space
+
+3. **Set Secrets**: Add HF_TOKEN as a repository secret
+
+4. **Configure**: Ensure app.py exists (create simple wrapper if needed)
+
+5. **Test**: Verify the Space builds and runs successfully
+
+### Example app.py (if needed)
+```python
+import subprocess
+import os
+
+def main():
+    print("Starting PolicyMind AI on Hugging Face Spaces...")
+    
+    # Set environment
+    os.environ["TASK_DIFFICULTY"] = "medium"
+    
+    # Run inference
+    result = subprocess.run(["python", "inference.py"], capture_output=True, text=True)
+    print(result.stdout)
+    
+if __name__ == "__main__":
+    main()
+```
+
+## Setup Instructions
 
 ### Prerequisites
 - Python 3.8 or higher
-- OpenAI API key (for inference)
+- HF_TOKEN (Hugging Face token for API access)
 - Docker (optional, for containerized deployment)
 
 ### Local Installation
@@ -188,9 +269,9 @@ The reward function provides incremental feedback:
 
 3. **Set environment variables**:
    ```bash
-   export API_BASE_URL="https://api.openai.com/v1"
+   export HF_TOKEN="your-huggingface-token"
+   export API_BASE_URL="https://api-inference.huggingface.co/v1"  # or OpenAI
    export MODEL_NAME="gpt-3.5-turbo"
-   export OPENAI_API_KEY="your-openai-api-key"
    ```
 
 ### Docker Installation
@@ -202,7 +283,7 @@ The reward function provides incremental feedback:
 
 2. **Run the container**:
    ```bash
-   docker run -e OPENAI_API_KEY=your-key policymind-ai
+   docker run -e HF_TOKEN=your-token policymind-ai
    ```
 
 ## 📖 Example Usage
@@ -239,13 +320,13 @@ asyncio.run(run_example())
 
 ```bash
 # Run with default settings
-python inference.py
+HF_TOKEN=your-token python inference.py
 
 # Run with custom difficulty
-TASK_DIFFICULTY=hard python inference.py
+TASK_DIFFICULTY=hard HF_TOKEN=your-token python inference.py
 
 # Run with custom model
-MODEL_NAME=gpt-4 python inference.py
+MODEL_NAME=gpt-4 HF_TOKEN=your-token python inference.py
 ```
 
 ### OpenEnv Validation
