@@ -11,8 +11,7 @@ openai>=1.0.0
 # Environment variable management
 python-dotenv>=1.0.0
 
-# Async support (built-in but listed for clarity)
-asyncio
+# Async support (asyncio is built-in in Python 3.7+)
 aiofiles>=23.0.0
 
 # JSON handling and utilities
@@ -68,6 +67,4 @@ cryptography>=41.0.0
 # Performance
 uvloop>=0.19.0; sys_platform != "win32"
 
-# Compatibility
-# Ensure Python 3.8+ compatibility
-python-version>=3.8
+# Note: Python 3.8+ requirement is specified in pyproject.toml

@@ -17,7 +17,7 @@ from environment.models import (
     EnvironmentState,
     DocumentSample,
     MatchedRule,
-    DecisionOutput,
+    Decision,
 )
 
 __all__ = [
@@ -28,7 +28,7 @@ __all__ = [
     "EnvironmentState",
     "DocumentSample",
     "MatchedRule",
-    "DecisionOutput",
+    "Decision",
 ]
 
 __version__ = "1.0.0"

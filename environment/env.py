@@ -494,7 +494,7 @@ class PolicyMindEnvironment:
         
         # Create reward object
         reward = Reward(
-            total_reward=self.state.observation.step_reward + step_reward if hasattr(self.state.observation, 'step_reward') else step_reward,
+            total_reward=step_reward,
             step_reward=step_reward,
             component_rewards=reward_components,
             penalties=penalties,
@@ -503,7 +503,6 @@ class PolicyMindEnvironment:
         
         # Update state
         self.state.observation = observation
-        self.state.observation.step_reward = reward.total_reward
         self.state.episode_complete = done
         
         if done:

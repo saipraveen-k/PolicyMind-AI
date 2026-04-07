@@ -27,8 +27,8 @@ class PolicyMindInference:
     
     def __init__(self):
         # Read environment variables with defaults
-        self.api_base_url = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-        self.model_name = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
+        self.api_base_url = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
+        self.model_name = os.getenv("MODEL_NAME", "meta-llama/Meta-Llama-3-8B-Instruct")
         self.hf_token = os.getenv("HF_TOKEN", "")
         self.task_difficulty = os.getenv("TASK_DIFFICULTY", "medium")
         self.max_steps = int(os.getenv("MAX_STEPS", "10"))
@@ -86,7 +86,8 @@ Be thorough, accurate, and provide clear reasoning for your decisions. Focus on 
         
         rewards = []
         step_count = 0
-        success = False
+        global_success = True  # Track global success flag
+        api_error_occurred = False  # Track if any API errors occurred
         
         try:
             # Main interaction loop
@@ -94,39 +95,53 @@ Be thorough, accurate, and provide clear reasoning for your decisions. Focus on 
                 step_count = step
                 
                 # Generate action using OpenAI
+                action = None
+                api_error = None
+                
                 try:
                     action = await self._generate_action(observation, self.task_difficulty)
                 except Exception as e:
-                    # Log step with error
-                    error_msg = str(e).replace('"', "'")  # Escape quotes
-                    print(f"[STEP] step={step} action={{}} reward=0.00 done=false error=\"{error_msg}\"")
-                    break
+                    api_error = str(e)
+                    api_error_occurred = True
+                    global_success = False
                 
                 # Execute action
-                try:
-                    observation, reward, done, info = await env.step(action)
-                    step_reward = float(reward.step_reward)
-                    rewards.append(step_reward)
-                    
-                    # Log step with exact format
-                    action_str = json.dumps(action.dict(), separators=(',', ':')).replace('"', "'")  # Use single quotes for JSON
-                    print(f"[STEP] step={step} action=\"{action_str}\" reward={step_reward:.2f} done={str(done).lower()} error=null")
-                    
-                    if done:
-                        success = True
-                        break
+                if action is not None:
+                    try:
+                        observation, reward, done, info = await env.step(action)
+                        step_reward = float(reward.step_reward)
+                        rewards.append(step_reward)
                         
-                except Exception as e:
-                    # Log step with error
-                    error_msg = str(e).replace('"', "'")  # Escape quotes
-                    print(f"[STEP] step={step} action={{}} reward=0.00 done=false error=\"{error_msg}\"")
+                        # Log step with exact format - VALID JSON
+                        action_json = json.dumps(action.dict(), separators=(",", ":"))
+                        print(f"[STEP] step={step} action={action_json} reward={step_reward:.2f} done={str(done).lower()} error=null")
+                        
+                        if done:
+                            break
+                            
+                    except Exception as e:
+                        # Environment step failed
+                        step_error = str(e)
+                        global_success = False
+                        rewards.append(0.0)
+                        
+                        # Log step with error - empty action object
+                        print(f"[STEP] step={step} action={{}} reward=0.00 done=false error=\"{step_error}\"")
+                        break
+                else:
+                    # API call failed - log error and continue
+                    rewards.append(0.0)
+                    
+                    # Log step with error - empty action object
+                    print(f"[STEP] step={step} action={{}} reward=0.00 done=false error=\"{api_error}\"")
                     break
         
         except Exception as e:
             print(f"Critical error during inference: {e}", file=sys.stderr)
+            global_success = False
         
-        # Calculate final score
-        final_score = max(0.0, min(1.0, sum(rewards)))
+        # Success flag: true only if no errors occurred
+        success = global_success and not api_error_occurred
         
         # Format rewards list
         rewards_str = ",".join([f"{r:.2f}" for r in rewards])
@@ -134,7 +149,7 @@ Be thorough, accurate, and provide clear reasoning for your decisions. Focus on 
         # Print exact END format
         print(f"[END] success={str(success).lower()} steps={step_count} rewards={rewards_str}")
         
-        return final_score
+        return max(0.0, min(1.0, sum(rewards)))
     
     async def _generate_action(self, observation, task_difficulty: str) -> Action:
         """
@@ -219,8 +234,8 @@ Task: Based on the current state, determine the best action to take. Respond wit
         
         except Exception as e:
             print(f"OpenAI API call failed: {e}", file=sys.stderr)
-            # Fallback to simple action
-            return '{"action_type": "query", "query": "Continue processing"}'
+            # Re-raise exception to trigger error handling in main loop
+            raise e
     
     def _parse_action(self, response: str) -> Action:
         """
@@ -258,11 +273,8 @@ Task: Based on the current state, determine the best action to take. Respond wit
         
         except Exception as e:
             print(f"Failed to parse action: {e}", file=sys.stderr)
-            # Fallback to query action
-            return Action(
-                action_type=ActionType.QUERY,
-                query="Continue processing the document"
-            )
+            # Re-raise exception to trigger error handling in main loop
+            raise e
 
 
 async def main():
