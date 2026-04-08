@@ -111,7 +111,18 @@ This project is **100% compliant** with OpenEnv Hackathon requirements:
 - ✅ Docker-ready with lightweight container
 - ✅ Runs under 8GB RAM, completes under 20 minutes
 
----
+### 📺 Demo Output
+
+Example output when running `python inference.py`:
+
+```
+[START] task=medium env=policymind-ai model=meta-llama/Meta-Llama-3-8B-Instruct
+[STEP] step=1 action={"action_type":"extract","extraction_fields":["claim_id","policy_number"]} reward=0.15 done=false error=null
+[STEP] step=2 action={"action_type":"match_rules","rule_keywords":["collision","coverage"]} reward=0.25 done=false error=null
+[STEP] step=3 action={"action_type":"make_decision","decision_data":{"decision":"Approved","confidence":0.85}} reward=0.35 done=true error=null
+[END] success=true steps=3 rewards=0.15,0.25,0.35
+```
+
 
 ## 🏗️ Architecture Overview
 
