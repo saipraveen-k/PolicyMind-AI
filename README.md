@@ -1,7 +1,7 @@
 # 🏛️ PolicyMind AI
 
 [![OpenEnv Compatible](https://img.shields.io/badge/OpenEnv-Compatible-brightgreen?logo=openai)](https://openenv.ai)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg?logo=python)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg?logo=python)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg?logo=docker)](https://www.docker.com/)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -70,7 +70,7 @@ HF_TOKEN=your_token python inference.py
 ```
 
 ### Prerequisites
-- Python 3.9 or higher
+- Python 3.10 or higher
 - pip package manager
 - HF_TOKEN (Hugging Face API token) - **MANDATORY**
 
@@ -82,6 +82,9 @@ git clone https://github.com/saipraveen-k/PolicyMind-AI.git
 cd PolicyMind-AI
 
 # 2. Install dependencies
+pip install -e .
+
+# Alternative: install from requirements.txt
 pip install -r requirements.txt
 
 # 3. Set environment variables
