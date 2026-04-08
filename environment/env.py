@@ -31,7 +31,7 @@ class PolicyMindEnvironment:
         self.current_step = 0
         self.current_document: Optional[DocumentSample] = None
         self.current_rules: List[PolicyRule] = []
-        self.state: Optional[EnvironmentState] = None
+        self._state: Optional[EnvironmentState] = None
         self.episode_history: List[Dict[str, Any]] = []
         
         # Initialize sample documents and rules
@@ -438,7 +438,7 @@ class PolicyMindEnvironment:
             hints=self._get_task_hints()
         )
         
-        self.state = EnvironmentState(
+        self._state = EnvironmentState(
             observation=observation,
             action_count=0,
             episode_complete=False
@@ -477,11 +477,11 @@ class PolicyMindEnvironment:
         Returns:
             Tuple of (observation, reward, done, info)
         """
-        if self.state is None:
+        if self._state is None:
             raise RuntimeError("Environment not reset. Call reset() first.")
         
         self.current_step += 1
-        self.state.action_count += 1
+        self._state.action_count += 1
         
         # Execute action and calculate reward
         step_reward, reward_components, penalties, bonuses = await self._execute_action(action)
@@ -502,11 +502,11 @@ class PolicyMindEnvironment:
         )
         
         # Update state
-        self.state.observation = observation
-        self.state.episode_complete = done
+        self._state.observation = observation
+        self._state.episode_complete = done
         
         if done:
-            self.state.final_score = await self._calculate_final_score()
+            self._state.final_score = await self._calculate_final_score()
         
         # Record action in history
         self.episode_history.append({
@@ -518,8 +518,8 @@ class PolicyMindEnvironment:
         
         info = {
             "step": self.current_step,
-            "action_count": self.state.action_count,
-            "final_score": self.state.final_score if done else None
+            "action_count": self._state.action_count,
+            "final_score": self._state.final_score if done else None
         }
         
         return observation, reward, done, info
@@ -664,7 +664,7 @@ class PolicyMindEnvironment:
     
     async def _update_observation(self, action: Action) -> Observation:
         """Update observation based on action taken."""
-        obs = self.state.observation
+        obs = self._state.observation
         obs.step = self.current_step
         obs.error_message = None
         
@@ -723,7 +723,7 @@ class PolicyMindEnvironment:
         # Episode ends if extraction complete (for easy task)
         if (self.task_difficulty == "easy" and 
             action.action_type == ActionType.EXTRACT and 
-            len(self.state.observation.extracted_fields) >= 3):
+            len(self._state.observation.extracted_fields) >= 3):
             return True
         
         return False
@@ -735,7 +735,7 @@ class PolicyMindEnvironment:
         if self.task_difficulty == "easy":
             # Score based on extraction accuracy
             gt_fields = set(ground_truth.get("extracted_fields", {}).keys())
-            extracted_fields = set(f.field_name for f in self.state.observation.extracted_fields)
+            extracted_fields = set(f.field_name for f in self._state.observation.extracted_fields)
             
             if gt_fields:
                 accuracy = len(gt_fields & extracted_fields) / len(gt_fields)
@@ -747,7 +747,7 @@ class PolicyMindEnvironment:
         elif self.task_difficulty == "medium":
             # Score based on rule matching
             gt_rules = set(ground_truth.get("applicable_rules", []))
-            matched_rules = set(r.rule_id for r in self.state.observation.matched_rules)
+            matched_rules = set(r.rule_id for r in self._state.observation.matched_rules)
             
             if gt_rules:
                 precision = len(gt_rules & matched_rules) / len(matched_rules) if matched_rules else 0
@@ -760,12 +760,12 @@ class PolicyMindEnvironment:
         
         else:  # hard
             # Score based on decision accuracy
-            if self.state.observation.current_decision:
+            if self._state.observation.current_decision:
                 gt_decision = ground_truth.get("decision", "")
                 gt_confidence = ground_truth.get("confidence", 0.0)
                 
-                decision_correct = 1.0 if self.state.observation.current_decision.decision.lower() == gt_decision.lower() else 0.0
-                confidence_diff = abs(self.state.observation.current_decision.confidence - gt_confidence)
+                decision_correct = 1.0 if self._state.observation.current_decision.decision.lower() == gt_decision.lower() else 0.0
+                confidence_diff = abs(self._state.observation.current_decision.confidence - gt_confidence)
                 confidence_score = max(0, 1.0 - confidence_diff)
                 
                 return (decision_correct * 0.7 + confidence_score * 0.3)
@@ -774,16 +774,16 @@ class PolicyMindEnvironment:
     
     async def state(self) -> EnvironmentState:
         """Get current environment state."""
-        if self.state is None:
+        if self._state is None:
             raise RuntimeError("Environment not initialized. Call reset() first.")
-        return self.state
+        return self._state
     
     async def evaluate_episode(self) -> EvaluationResult:
         """Evaluate the completed episode."""
-        if self.state is None or not self.state.episode_complete:
+        if self._state is None or not self._state.episode_complete:
             raise RuntimeError("Episode not complete. Cannot evaluate.")
         
-        final_score = self.state.final_score or 0.0
+        final_score = self._state.final_score or 0.0
         
         # Calculate component scores
         correctness = final_score  # Simplified for this implementation

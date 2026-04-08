@@ -29,7 +29,7 @@ Thank you for your interest in contributing to PolicyMind AI, a real-world OpenE
 1. **Fork the Repository**
    ```bash
    # Fork on GitHub, then clone your fork
-   git clone https://github.com/your-username/policymind-ai.git
+   git clone https://github.com/saipraveen-k/PolicyMind-AI.git
    cd policymind-ai
    ```
 

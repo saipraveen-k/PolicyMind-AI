@@ -65,7 +65,8 @@ class Observation(BaseModel):
 
 class Action(BaseModel):
     """Action model for the environment."""
-    action_type: ActionType = Field(..., description="Type of action to perform")
+    message: str = Field(default="", description="Plain text action message from the agent")
+    action_type: Optional[ActionType] = Field(None, description="Type of action to perform")
     query: Optional[str] = Field(None, description="Query string for query actions")
     extraction_fields: Optional[List[str]] = Field(None, description="Fields to extract")
     decision_data: Optional[Dict[str, Any]] = Field(None, description="Decision data for decision actions")
