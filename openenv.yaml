@@ -17,68 +17,14 @@ environment:
 
 # Task configurations
 tasks:
-  easy:
-    name: "Document Information Extraction"
-    description: "Extract structured fields from insurance/policy documents"
-    difficulty: "easy"
-    max_steps: 5
-    evaluation_module: "tasks.task_easy"
-    grader_class: "EasyTaskGrader"
-    
-    # Expected outputs
-    expected_outputs:
-      - "JSON with extracted fields"
-      - "Field names and values"
-      - "Confidence scores"
-    
-    # Success criteria
-    success_criteria:
-      accuracy_threshold: 0.6
-      completeness_threshold: 0.5
-      max_steps: 5
+  - id: easy
+    grader: "tasks.task_easy.EasyTaskGrader"
 
-  medium:
-    name: "Policy Rule Matching"
-    description: "Match relevant policy clauses to document content"
-    difficulty: "medium"
-    max_steps: 8
-    evaluation_module: "tasks.task_medium"
-    grader_class: "MediumTaskGrader"
-    
-    # Expected outputs
-    expected_outputs:
-      - "List of matched policy rules"
-      - "Relevance scores"
-      - "Rule categories"
-    
-    # Success criteria
-    success_criteria:
-      precision_threshold: 0.6
-      recall_threshold: 0.6
-      f1_threshold: 0.6
-      max_steps: 8
+  - id: medium
+    grader: "tasks.task_medium.MediumTaskGrader"
 
-  hard:
-    name: "Decision Making with Justification"
-    description: "Make final decisions with confidence and detailed justification"
-    difficulty: "hard"
-    max_steps: 10
-    evaluation_module: "tasks.task_hard"
-    grader_class: "HardTaskGrader"
-    
-    # Expected outputs
-    expected_outputs:
-      - "Final decision (Approved/Rejected/Needs Review)"
-      - "Confidence score (0-1)"
-      - "Detailed justification"
-      - "Applied policy rules"
-    
-    # Success criteria
-    success_criteria:
-      decision_accuracy_threshold: 0.7
-      justification_quality_threshold: 0.6
-      overall_score_threshold: 0.6
-      max_steps: 10
+  - id: hard
+    grader: "tasks.task_hard.HardTaskGrader"
 
 # Model schemas (Pydantic models)
 models:

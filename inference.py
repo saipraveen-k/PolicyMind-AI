@@ -51,7 +51,7 @@ def main():
         observation = asyncio.run(env.reset())
     except Exception:
         print("[END] success=false steps=0 rewards=")
-        return 0.0
+        return 0.01
 
     rewards = []
     step_count = 0
@@ -113,9 +113,14 @@ What action should you take next? Respond with a clear, actionable message."""
                 observation, reward, done, info = asyncio.run(env.step(Action(message=message)))
                 step_reward = float(reward.step_reward)
                 rewards.append(step_reward)
+                step_error = None
 
-                # Log step with exact format (error=null unless env.step fails)
-                print(f"[STEP] step={step} action={message} reward={step_reward:.2f} done={str(done).lower()} error=null")
+                # Log step with exact format
+                error_str = "null" if step_error is None else f'"{step_error}"'
+                print(
+                    f"[STEP] step={step} action={message} reward={step_reward:.2f} "
+                    f"done={str(done).lower()} error={error_str}"
+                )
 
                 if done:
                     success = True
@@ -129,7 +134,11 @@ What action should you take next? Respond with a clear, actionable message."""
                 rewards.append(0.0)
 
                 # Log step with error
-                print(f"[STEP] step={step} action=continue reward=0.00 done=false error={step_error}")
+                error_str = f'"{step_error}"'
+                print(
+                    f"[STEP] step={step} action=continue reward=0.00 "
+                    f"done=false error={error_str}"
+                )
                 break
 
     except Exception:
@@ -141,7 +150,7 @@ What action should you take next? Respond with a clear, actionable message."""
     # Print exact END format
     print(f"[END] success={str(success).lower()} steps={step_count} rewards={rewards_str}")
 
-    return 0.0
+    return 0.01
 
 if __name__ == "__main__":
     main()

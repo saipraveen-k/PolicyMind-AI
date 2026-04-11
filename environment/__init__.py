@@ -9,7 +9,6 @@ Modules:
     models: Pydantic models for Observation, Action, Reward, and EnvironmentState
 """
 
-from environment.env import PolicyMindEnvironment
 from environment.models import (
     Action,
     Observation,
@@ -19,6 +18,7 @@ from environment.models import (
     MatchedRule,
     Decision,
 )
+from environment.env import PolicyMindEnvironment
 
 __all__ = [
     "PolicyMindEnvironment",
