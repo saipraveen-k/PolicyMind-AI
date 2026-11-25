@@ -150,3 +150,6 @@ models/saved/
 
 # HF Token (ensure it's never committed)
 *.token
+# Local debug logs
+error.txt
+output.txt
